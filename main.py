@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.responses import HTMLResponse
 import logging
@@ -126,4 +127,22 @@ async def delete_user(
             "message": f"{user} has been deleted"
         }
     raise HTTPException(status_code=404, detail="User not found")
+
+
+
+#定时任务
+@app.get("/api/cron")
+async def cron(request: Request):
+    key = request.headers.get("Authorization", "")
+    if not adminkey or not key:
+         raise HTTPException(status_code=400, detail="Key is incorrect")
+    key  = key[7:]
+    if key != adminkey:
+         raise HTTPException(status_code=400, detail="Key is incorrect")
+    global data_global  
+    data_global.clear()
+    return {
+            "message": "cron",
+        } 
+
 
