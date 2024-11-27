@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  opaochat:
+    image: oneperfect/emailforward:latest
+    restart: always
+    container_name: emailforward
+    ports:
+      - "38000:8000"
+    volumes:
+      - ./.env:/app/.env
+      - ./users.db:/app/users.db

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>登录</title>
+    {% if turnstile_site_key %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {% endif %}
+</head>
+
+<body>
+    <h2>登录</h2>
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    <form method="post" action="/login">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">密码:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        {% if turnstile_site_key %}
+        <!-- Turnstile Widget -->
+        <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+        <br>
+        {% endif %}
+
+        <button type="submit">登录</button>
+    </form>
+</body>
+
+</html>

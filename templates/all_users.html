@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>查询页面</title>
+    <style>
+        /* 基本样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        select,
+        input[type="text"] {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .pagination {
+            text-align: center;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 5px 10px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            color: #007BFF;
+        }
+
+        .pagination a.disabled {
+            color: #ccc;
+            pointer-events: none;
+            border-color: #ccc;
+        }
+
+        .pagination span {
+            margin: 0 10px;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            /* 默认隐藏 */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* 半透明背景 */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 5px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .modal-header {
+            margin-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .modal-body label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .modal-body input,
+        .modal-body select {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-footer button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>查询页面</h1>
+
+    <!-- 用户查询部分 -->
+    <section>
+        <h2>用户查询</h2>
+        <form method="get" action="/all">
+            <!-- 隐藏字段：指示这是用户查询 -->
+            <input type="hidden" name="action" value="users">
+            <button type="submit">查询所有用户</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>角色</th>
+                    <th>操作</th> <!-- 新增“操作”列 -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <button
+                            onclick='openUserModal({{ user.id }}, {{ user.username | tojson }}, {{ user.role | tojson }})'>修改</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not users %}
+                <tr>
+                    <td colspan="4">无用户数据</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- 用户分页控制 -->
+        <div class="pagination">
+            {% if user_page > 1 %}
+            <a href="/all?action=users&user_page={{ user_page - 1 }}">上一页</a>
+            {% else %}
+            <a class="disabled">上一页</a>
+            {% endif %}
+
+            <span>第 {{ user_page }} 页 / 共 {{ user_total_pages }} 页</span>
+
+            {% if user_page < user_total_pages %} <a href="/all?action=users&user_page={{ user_page + 1 }}">下一页</a>
+                {% else %}
+                <a class="disabled">下一页</a>
+                {% endif %}
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- 角色查询部分 -->
+    <section>
+        <h2>角色查询</h2>
+        <form method="get" action="/all">
+            <!-- 隐藏字段：指示这是角色查询 -->
+            <input type="hidden" name="action" value="roles">
+            <button type="submit">查询所有角色</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>角色</th>
+                    <th>邮箱域</th>
+                    <th>操作</th> <!-- 新增“操作”列 -->
+                    <th>删除</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for role in roles %}
+                <tr>
+                    <td>{{ role.id }}</td>
+                    <td>{{ role.role }}</td>
+                    <td>{{ role.email }}</td>
+                    <td>
+                        <button
+                            onclick='openRoleModal({{ role.id }}, {{ role.role | tojson }}, {{ role.email | tojson }})'>修改</button>
+                    </td>
+                    <td>
+                        <button onclick='deleteRole({{ role.id }})' style="color: red; cursor: pointer;">
+                            删除
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not roles %}
+                <tr>
+                    <td colspan="4">无角色数据</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- 角色分页控制 -->
+        <div class="pagination">
+            {% if role_page > 1 %}
+            <a href="/all?action=roles&role_page={{ role_page - 1 }}">上一页</a>
+            {% else %}
+            <a class="disabled">上一页</a>
+            {% endif %}
+
+            <span>第 {{ role_page }} 页 / 共 {{ role_total_pages }} 页</span>
+
+            {% if role_page < role_total_pages %} <a href="/all?action=roles&role_page={{ role_page + 1 }}">下一页</a>
+                {% else %}
+                <a class="disabled">下一页</a>
+                {% endif %}
+        </div>
+    </section>
+
+    <hr>
+    <!-- 记录查询部分 -->
+    <section>
+        <h2>记录查询</h2>
+        <form method="get" action="/all">
+            <!-- 隐藏字段：指示这是记录查询 -->
+            <input type="hidden" name="action" value="records">
+
+            <label for="record_domain">邮箱域名筛选:</label>
+            <input type="text" id="record_domain" name="record_domain">
+            <button type="submit">筛选记录</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>邮件用户</th>
+                    <th>邮件域</th>
+                    <th>发送自</th>
+                    <th>主题</th>
+                    <th>查询</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.id }}</td>
+                    <td>{{ record.email_user }}</td>
+                    <td>{{ record.email_domain }}</td>
+                    <td>{{ record.from_field }}</td>
+                    <td>{{ record.subject }}</td>
+                    <td>
+                        <a href="/record/{{ record.id }}?email_domin={{ record.email_user }}@{{record.email_domain}}"
+                            target="_blank">Query</a>
+                    </td>
+                    <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+                {% if not records %}
+                <tr>
+                    <td colspan="8">无记录数据</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- 记录分页控制 -->
+        <div class="pagination">
+            {% if record_page > 1 %}
+            <a href="/all?action=records&record_page={{ record_page - 1 }}">上一页</a>
+            {% else %}
+            <a class="disabled">上一页</a>
+            {% endif %}
+
+            <span>第 {{ record_page }} 页 / 共 {{ record_total_pages }} 页</span>
+
+            {% if record_page < record_total_pages %} <a href="/all?action=records&record_page={{ record_page + 1 }}">
+                下一页</a>
+                {% else %}
+                <a class="disabled">下一页</a>
+                {% endif %}
+        </div>
+    </section>
+
+    <hr>
+    <!-- 发信查询部分 -->
+    <section>
+        <h2>发信查询</h2>
+        <form method="get" action="/all">
+            <!-- 隐藏字段：指示这是记录查询 -->
+            <input type="hidden" name="action" value="sendemail">
+
+            <label for="username">发信者筛选:</label>
+            <input type="text" id="username" name="username">
+            <button type="submit">筛选记录</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户</th>
+                    <th>发送自</th>
+                    <th>接收者</th>
+                    <th>主题</th>
+                    <th>查询</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for send in sends %}
+                <tr>
+                    <td>{{ send.id }}</td>
+                    <td>{{ send.username }}</td>
+                    <td>{{ send.from_field }}</td>
+                    <td>{{ send.to_field }}</td>
+                    <td>{{ send.subject }}</td>
+                    <td>
+                        <a href="/resend/{{ send.id }}" target="_blank">Query</a>
+                    </td>
+                    <td>{{ send.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+                {% if not sends %}
+                <tr>
+                    <td colspan="8">无记录数据</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- 记录分页控制 -->
+        <div class="pagination">
+            {% if send_page > 1 %}
+            <a href="/all?action=sendemail&send_page={{ send_page - 1 }}">上一页</a>
+            {% else %}
+            <a class="disabled">上一页</a>
+            {% endif %}
+
+            <span>第 {{ send_page }} 页 / 共 {{ send_total_pages }} 页</span>
+
+            {% if send_page < send_total_pages %} <a href="/all?action=sendemail&send_page={{ send_page + 1 }}">
+                下一页</a>
+                {% else %}
+                <a class="disabled">下一页</a>
+                {% endif %}
+        </div>
+    </section>
+
+
+
+
+    <hr>
+
+    <div class="container">
+        <h2 style="text-align: center;"> <a href="/all">查询页 </a> </h2>
+        <hr>
+        <h2 style="text-align: center;"> <a href="/">首页 </a> </h2>
+    </div>
+
+    <!-- 修改用户信息的模态框 -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeUserModal()">&times;</span>
+                <h2>修改用户信息</h2>
+            </div>
+            <div class="modal-body">
+                <form id="userEditForm" method="post" action="/update_user">
+                    <input type="hidden" id="edit_user_id" name="user_id" value="">
+
+                    <label for="edit_username">用户名:</label>
+                    <input type="text" id="edit_username" name="username" required>
+
+                    <label for="edit_role">角色:</label>
+                    <input type="text" id="edit_role" name="role" required>
+
+                    <label for="edit_password">密码:</label>
+                    <input type="password" id="edit_password" name="password">
+
+                    <label for="edit_key">key:</label>
+                    <input type="key" id="edit_key" name="key">
+
+
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeUserModal()">取消</button>
+                        <button type="submit">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改角色信息的模态框 -->
+    <div id="roleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeRoleModal()">&times;</span>
+                <h2>修改角色信息</h2>
+            </div>
+            <div class="modal-body">
+                <form id="roleEditForm" method="post" action="/update_role">
+                    <input type="hidden" id="edit_role_id" name="role_id" value="">
+
+                    <label for="edit_role_name">角色名称:</label>
+                    <input type="text" id="edit_role_name" name="role_name" required>
+
+                    <label for="edit_email">邮箱域:</label>
+                    <input type="text" id="edit_email" name="email" required>
+
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeRoleModal()">取消</button>
+                        <button type="submit">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 用户模态框
+        var userModal = document.getElementById("userModal");
+
+        function openUserModal(userId, username, role) {
+            document.getElementById("edit_user_id").value = userId;
+            document.getElementById("edit_username").value = username;
+            document.getElementById("edit_role").value = role;
+            document.getElementById("edit_password").value = ""; // 清空密码字段
+            document.getElementById("edit_key").value = ""; // 清空密码字段
+            userModal.style.display = "block";
+        }
+
+        function closeUserModal() {
+            userModal.style.display = "none";
+        }
+
+        // 角色模态框
+        var roleModal = document.getElementById("roleModal");
+
+        function openRoleModal(roleId, roleName, email) {
+            document.getElementById("edit_role_id").value = roleId;
+            document.getElementById("edit_role_name").value = roleName;
+            document.getElementById("edit_email").value = email;
+            roleModal.style.display = "block";
+        }
+
+        function closeRoleModal() {
+            roleModal.style.display = "none";
+        }
+
+        // 点击模态框外部时，关闭模态框
+        window.onclick = function (event) {
+            if (event.target == userModal) {
+                userModal.style.display = "none";
+            }
+            if (event.target == roleModal) {
+                roleModal.style.display = "none";
+            }
+        }
+
+        // 删除角色
+        function deleteRole(roleId) {
+            if (confirm('确定要删除该角色吗？')) {
+                // 使用 fetch 发送 DELETE 请求
+                fetch(`/delete_role/${roleId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('角色删除成功');
+                            location.reload(); // 刷新页面
+                        } else {
+                            alert('删除失败，请稍后重试');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('删除时发生错误:', error);
+                        alert('删除时发生错误');
+                    });
+            }
+        }
+    </script>
+
+</body>
+
+</html>

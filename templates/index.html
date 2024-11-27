@@ -1,0 +1,82 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Data Lookup</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>邮件查询</h1>
+        <form action="/search" method="post" class="search-form">
+            <h2>用户信息</h2>
+            <p>用户名: {{ user.username }}</p>
+            <p>角色: {{ user.role }}</p>
+
+            <label for="username">输入你的邮箱前缀:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="emails">选择你的域名邮箱:</label>
+            <select id="emails" name="emails" required>
+                {% for emails in emails_options %}
+                <option value="{{ emails }}">{{ emails }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Search</button>
+        </form>
+
+        <hr>
+        <label for="code">你所拥有的域名邮箱权限:</label>
+        <pre class="language-python"><code>{{code}}</code></pre>
+        <hr>
+        {% if message %}
+        <p class="message">{{ message }}</p>
+        {% endif %}
+
+        {% if records %}
+        <h2>Records</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>From</th>
+                    <th>Created At</th>
+                    <th>Query</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.id }}</td>
+                    <td>{{ email_domin }}</td>
+                    <td>{{ record.from_field }}</td>
+                    <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        <a href="/record/{{ record.id }}?email_domin={{ email_domin }}" target="_blank">Query</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% if user.role == "admin" %}
+        <a href="/admin">管理员页面</a>
+        <hr>
+        <a href="/all">Access All User Data (Special Page)</a>
+        <hr>
+        {% endif %}
+
+        <a href="/send-email">发送邮件 </a>
+        <hr>
+        <a href="/logout">登出 </a>
+    </div>
+</body>
+
+</html>

@@ -1,1 +1,8 @@
 fastapi
+sqlalchemy
+python-dotenv
+requests
+pyjwt
+jinja2
+python-multipart
+httpx

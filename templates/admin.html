@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>管理员页面</title>
+</head>
+
+<body>
+    <h2>管理员面板</h2>
+
+    <h3>创建新用户</h3>
+    {% if user_creation_success %}
+    <p style="color:green;">用户创建成功!</p>
+    {% endif %}
+    {% if user_creation_error %}
+    <p style="color:red;">{{ user_creation_error }}</p>
+    {% endif %}
+    <form method="post" action="/admin/create_user">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">密码:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <label for="role">角色:</label>
+        <input type="text" id="role" name="role" required><br><br>
+
+        <label for="key">密钥:</label>
+        <input type="text" id="key" name="key" required><br><br>
+
+        <button type="submit">创建用户</button>
+    </form>
+
+    <h3>创建新角色</h3>
+    {% if role_creation_success %}
+    <p style="color:green;">角色创建成功!</p>
+    {% endif %}
+    {% if role_creation_error %}
+    <p style="color:red;">{{ role_creation_error }}</p>
+    {% endif %}
+    <form method="post" action="/admin/create_role">
+        <label for="role">角色名称:</label>
+        <input type="text" id="role" name="role" required><br><br>
+
+        <label for="email">邮箱:</label>
+        <input type="text" id="email" name="email" required><br><br>
+
+        <button type="submit">创建角色</button>
+    </form>
+
+    <br>
+    <a href="/">主页</a> | <a href="/logout">登出</a>
+</body>
+
+</html>

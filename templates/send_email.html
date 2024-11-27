@@ -1,0 +1,82 @@
+<!-- templates/send_email.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Send Email</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- Place the first <script> tag in your HTML's <head> -->
+    <!-- <script src="https://cdn.tiny.cloud/1/83uonzvnip9q2n0nzpqqyfh9hp75zo8f79lq9p8uj0d28cjb/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"></script> -->
+    <script src="/static/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+    <script>
+        tinymce.init({
+            selector: 'textarea#html_content',
+            plugins: [
+                'code', 'autolink', 'lists', 'charmap', 'searchreplace', 'visualblocks', 'wordcount',
+                'emoticons', 'codesample' // 保留基本编辑功能
+            ],
+            toolbar: 'undo redo | code | bold italic underline strikethrough | bullist numlist | alignleft aligncenter alignright alignjustify | outdent indent | removeformat', // 移除文件和表格相关工具
+            branding: false, // 隐藏 "Powered by Tiny" 按钮
+            promotion: false, // 隐藏右上角的 "Upgrade" 按钮
+            setup: function (editor) {
+                editor.on('change', function () {
+                    editor.save(); // 将编辑器内容同步到 <textarea>
+                });
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Send Email</h1>
+        <form action="/send-email" method="post" class="email-form">
+            <label for="secret_key">Secret Key:</label>
+            <input type="password" id="secret_key" name="secret_key">
+
+            <label for="username">email-from:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="priority">domin:</label>
+            <select id="priority" name="priority" required>
+                {% for option in priority_options %}
+                <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="to_field">To:</label>
+            <input type="email" id="to_field" name="to_field" required>
+
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" required>
+
+            <label for="html_content">HTML Content:</label>
+            <textarea id="html_content" name="html_content" required></textarea>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if success_message %}
+        <p class="success">{{ success_message }}</p>
+        {% if external_response %}
+        <h2>Response from External Server:</h2>
+        <div class="external-response">
+            {{ external_response | safe }}
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <hr>
+        <a href="/">Back to User Lookup</a>
+    </div>
+</body>
+
+</html>
