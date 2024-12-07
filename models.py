@@ -32,6 +32,7 @@ class Role(Base):
     id = Column(Integer, primary_key=True, index=True)
     role = Column(String(32), nullable=False)
     email = Column(String(120), nullable=False)
+    key = Column(String(255), nullable=False, default="admin")  # 用于存储密钥
 
     __table_args__ = (UniqueConstraint("role", "email", name="uix_role_email"),)
 

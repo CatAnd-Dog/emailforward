@@ -493,6 +493,7 @@ async def create_role(
     request: Request,
     role: str = Form(...),
     email: str = Form(...),
+    key: str = Form(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -500,7 +501,7 @@ async def create_role(
         return RedirectResponse(url="/")
 
     # 创建新角色
-    new_role = Role(role=role, email=email)
+    new_role = Role(role=role, email=email, key=key)
     db.add(new_role)
     try:
         db.commit()
@@ -582,6 +583,7 @@ async def update_role(
     role_id: int = Form(...),
     role_name: str = Form(...),
     email: str = Form(...),
+    key: str = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -592,6 +594,8 @@ async def update_role(
         return RedirectResponse(url="/404", status_code=status.HTTP_303_SEE_OTHER)
     role.role = role_name
     role.email = email
+    if key:
+        role.key = key
     print(role.role, role.email, role.id)
     db.commit()
     db.refresh(role)
@@ -734,8 +738,8 @@ def handle_send_email(
 
     user = current_user.get("username", "")
 
-    if not secret_key:
-        secret_key = db.query(User).filter(User.username == user).first().key
+    # if not secret_key:
+    #     secret_key = db.query(User).filter(User.username == user).first().key
 
     emails = db.query(Role).filter(Role.role == current_user.get("role", "guise")).all()
     emails_options = [
@@ -775,7 +779,19 @@ def handle_send_email(
         "subject": subject,
         "html": html_content,
     }
-
+    if not secret_key:
+        secret_key = (
+            db.query(Role)
+            .filter(
+                and_(
+                    Role.role == current_user.get("role", "guise"),
+                    Role.email == selected_suffix,
+                )
+            )
+            .first()
+            .key
+        )
+    # logging.info(f"Secret key: {secret_key}")
     try:
         domin = from_field.split("@")[1]
         response = post_email(post_data, domin, secret_key)
@@ -907,6 +923,6 @@ async def receive_mailgun_forward(
     }
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")

@@ -31,7 +31,7 @@ def init_db():
         admin_role = session.query(Role).filter_by(role="admin").first()
         if not admin_role:
             # 创建admin角色
-            admin_role = Role(role="admin", email="@localhost.com")
+            admin_role = Role(role="admin", email="@localhost.com", key="admin")
             session.add(admin_role)
             print("Admin role created.")
         else:

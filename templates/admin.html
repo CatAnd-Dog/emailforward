@@ -1,55 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员页面</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2,
+        h3 {
+            color: #007BFF;
+        }
+
+        .admin-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        form {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .success,
+        .error {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .nav-links {
+            margin-top: 20px;
+        }
+
+        .nav-links a {
+            color: #007BFF;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <h2>管理员面板</h2>
+    <div class="admin-panel">
+        <h2>管理员面板</h2>
 
-    <h3>创建新用户</h3>
-    {% if user_creation_success %}
-    <p style="color:green;">用户创建成功!</p>
-    {% endif %}
-    {% if user_creation_error %}
-    <p style="color:red;">{{ user_creation_error }}</p>
-    {% endif %}
-    <form method="post" action="/admin/create_user">
-        <label for="username">用户名:</label>
-        <input type="text" id="username" name="username" required><br><br>
+        <h3>创建新用户</h3>
+        {% if user_creation_success %}
+        <p class="success">用户创建成功!</p>
+        {% endif %}
+        {% if user_creation_error %}
+        <p class="error">{{ user_creation_error }}</p>
+        {% endif %}
+        <form method="post" action="/admin/create_user">
+            <label for="username">用户名:【必须】</label>
+            <input type="text" id="username" name="username" required>
 
-        <label for="password">密码:</label>
-        <input type="password" id="password" name="password" required><br><br>
+            <label for="password">密码:【必须】</label>
+            <input type="password" id="password" name="password" required>
 
-        <label for="role">角色:</label>
-        <input type="text" id="role" name="role" required><br><br>
+            <label for="role">角色:【必须】</label>
+            <input type="text" id="role" name="role" required>
 
-        <label for="key">密钥:</label>
-        <input type="text" id="key" name="key" required><br><br>
+            <label for="key">密钥:【必须】</label>
+            <input type="text" id="key" name="key" required>
 
-        <button type="submit">创建用户</button>
-    </form>
+            <button type="submit">创建用户</button>
+        </form>
 
-    <h3>创建新角色</h3>
-    {% if role_creation_success %}
-    <p style="color:green;">角色创建成功!</p>
-    {% endif %}
-    {% if role_creation_error %}
-    <p style="color:red;">{{ role_creation_error }}</p>
-    {% endif %}
-    <form method="post" action="/admin/create_role">
-        <label for="role">角色名称:</label>
-        <input type="text" id="role" name="role" required><br><br>
+        <h3>创建新角色</h3>
+        {% if role_creation_success %}
+        <p class="success">角色创建成功!</p>
+        {% endif %}
+        {% if role_creation_error %}
+        <p class="error">{{ role_creation_error }}</p>
+        {% endif %}
+        <form method="post" action="/admin/create_role">
+            <label for="role">角色名称:【必须】</label>
+            <input type="text" id="role" name="role" required>
 
-        <label for="email">邮箱:</label>
-        <input type="text" id="email" name="email" required><br><br>
+            <label for="email">邮箱:【必须】</label>
+            <input type="text" id="email" name="email" required>
 
-        <button type="submit">创建角色</button>
-    </form>
+            <label for="key">密钥:【必须】</label>
+            <input type="text" id="key" name="key" required>
 
-    <br>
-    <a href="/">主页</a> | <a href="/logout">登出</a>
+            <button type="submit">创建角色</button>
+        </form>
+
+        <div class="nav-links">
+            <a href="/">主页</a> | <a href="/logout">登出</a>
+        </div>
+    </div>
 </body>
 
 </html>
