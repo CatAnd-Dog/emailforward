@@ -1,31 +1,38 @@
 name: Docker Image CI
 
 on:
-  # push:
-  #     branches:
-  #       - main
   workflow_dispatch:
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # 检出代码
       - uses: actions/checkout@v4
-      
+
+      # 安装 Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 登录到 DockerHub
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      
-      - name: Build and push Docker image
+
+      # 构建并推送多架构镜像
+      - name: Build and push multi-architecture Docker image
         run: |
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
           if [ "$BRANCH_NAME" == "main" ]; then
-            docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:$(date +%Y%m%d)
-            docker push ${{ secrets.DOCKER_USERNAME }}/emailforward:$(date +%Y%m%d)
-            docker tag ${{ secrets.DOCKER_USERNAME }}/emailforward:$(date +%Y%m%d) ${{ secrets.DOCKER_USERNAME }}/emailforward:latest
-            docker push ${{ secrets.DOCKER_USERNAME }}/emailforward:latest
+            docker buildx build . \
+              --file Dockerfile \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:$(date +%Y%m%d) \
+              --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:latest \
+              --push
           else
-            docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:$BRANCH_NAME
-            docker push ${{ secrets.DOCKER_USERNAME }}/emailforward:$BRANCH_NAME
-          fi
+            docker buildx build . \
+              --file Dockerfile \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:$BRANCH_NAME \
+              --push
