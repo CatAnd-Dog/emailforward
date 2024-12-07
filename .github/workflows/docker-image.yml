@@ -1,6 +1,9 @@
 name: Docker Image CI
 
 on:
+  # push:
+  #   branches:
+  #     - main
   workflow_dispatch:
 
 jobs:
@@ -8,27 +11,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 检出代码
       - uses: actions/checkout@v4
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      # 登录到 DockerHub
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      # 构建并推送多架构镜像
-      - name: Build and push multi-architecture Docker image
+      
+      - name: Build and push Docker image
         run: |
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
           if [ "$BRANCH_NAME" == "main" ]; then
-            docker buildx build . \
-              --file Dockerfile \
-              --platform linux/amd64,linux/arm64 \
+            # 构建多架构镜像并推送
+            docker buildx build --push \
+              --platform linux/amd64,linux/arm64/v8 \
               --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:$(date +%Y%m%d) \
               --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:latest \
-              --push
+              -f Dockerfile .
           else
-            docker buildx build . \
-              --file Dockerfile \
-              --platform linux/amd64,linux/arm64 \
+            # 对于非主分支，仅推送当前分支名称的标签
+            docker buildx build --push \
+              --platform linux/amd64,linux/arm64/v8 \
               --tag ${{ secrets.DOCKER_USERNAME }}/emailforward:$BRANCH_NAME \
-              --push
+              -f Dockerfile .
+          fi
+
+      - name: Inspect buildx builder
+        run: docker buildx inspect --bootstrap
+
