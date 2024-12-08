@@ -22,6 +22,27 @@ docker compose pull && docker compose up -d
 
 密码：admin
 
+## 用法
+### 收信
+假如你的域名为【user.458741.xyz】
+那么所有发往 *@user.458741.xyz的邮件，你都可以在这儿查看到。比如  
+a@user.458741.xyz   
+b@@user.458741.xyzd   
+等等所有的前缀，你都可以在这儿查到
+
+![image](https://img.opaoai.com/i/2024/12/08/67555f3aa36ec.webp)
+
+### 发信
+
+同理，你可以使用任意的前缀去发送邮件   
+假如你的域名为【ami.458741.xyz】  
+那么你可以使用任意的前缀。比如   
+a@ami.458741.xyz   
+b@ami.458741.xyz
+![image](https://img.opaoai.com/i/2024/12/08/67555e7746c49.webp)
+
+图中的email-from就是你的前缀，图中的发信者即为a@ami.458741.xyz   
+
 
 ## 重要
 修改env里面的密钥部分
