@@ -28,3 +28,21 @@ docker compose pull && docker compose up -d
 
 强烈建议添加cf的5s盾
 
+
+##  demo
+[https://imail.opaoai.com](https://imail.opaoai.com)
+
+![image](https://img.opaoai.com/i/2024/12/07/67542f06b3792.webp)
+
+地址：[https://github.com/CatAnd-Dog/emailforward](https://github.com/CatAnd-Dog/emailforward)
+
+教程：
+[部署](https://oneperfect.cn/1335/)
+
+[用户管理](https://oneperfect.cn/1351/)
+
+[添加收信](https://oneperfect.cn/1337/)
+
+添加发信：教程待写
+
+### 码字不易，点点start吧
