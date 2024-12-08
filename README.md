@@ -43,7 +43,8 @@ docker compose pull && docker compose up -d
 
 [添加收信](https://oneperfect.cn/1337/)
 
-添加发信：教程待写
+[添加发信](https://oneperfect.cn/1369/)
+
 
 ## 更新日志
 2024-12-8  
