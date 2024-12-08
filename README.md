@@ -45,4 +45,10 @@ docker compose pull && docker compose up -d
 
 添加发信：教程待写
 
+## 更新日志
+2024-12-8  
+新增登录页公告，新增首页公共，新增版权信息，支持群发  
+[修改方式](https://oneperfect.cn/1365/)
+
+
 ### 码字不易，点点start吧
