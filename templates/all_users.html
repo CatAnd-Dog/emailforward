@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>查询页面</title>
+    <title>EmailForward-管理查询</title>
     <style>
         /* 基本样式 */
         body {
@@ -505,7 +505,12 @@
         <h2 style="text-align: center;"> <a href="/all">查询页 </a> </h2>
         <hr>
         <h2 style="text-align: center;"> <a href="/">首页 </a> </h2>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        {% include 'else/footer.html' %}
     </div>
+
 
     <!-- 修改用户信息的模态框 -->
     <div id="userModal" class="modal">

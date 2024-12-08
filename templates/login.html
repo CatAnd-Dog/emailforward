@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录</title>
+    <title>EmailForward-登录</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -85,6 +85,10 @@
 <body>
     <div class="login-container">
         <h2>登录</h2>
+        <div class="content">
+            {% include 'else/loginnote.html' %}
+        </div>
+
         {% if error %}
         <p class="error-message">{{ error }}</p>
         {% endif %}
@@ -102,7 +106,13 @@
 
             <button type="submit">登录</button>
         </form>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        {% include 'else/footer.html' %}
     </div>
+
+
 </body>
 
 </html>

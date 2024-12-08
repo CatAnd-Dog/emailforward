@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Send Email</title>
+    <title>EmailForward-发信</title>
     <link rel="stylesheet" href="/static/styles.css">
     <!-- Place the first <script> tag in your HTML's <head> -->
     <!-- <script src="https://cdn.tiny.cloud/1/83uonzvnip9q2n0nzpqqyfh9hp75zo8f79lq9p8uj0d28cjb/tinymce/7/tinymce.min.js"
@@ -49,7 +49,7 @@
             </select>
 
             <label for="to_field">To:</label>
-            <input type="email" id="to_field" name="to_field" required>
+            <input type="email" id="to_field" name="to_field" required multiple>
 
             <label for="subject">Subject:</label>
             <input type="text" id="subject" name="subject" required>
@@ -76,6 +76,11 @@
 
         <hr>
         <a href="/">Back to User Lookup</a>
+        <hr>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        {% include 'else/footer.html' %}
     </div>
 </body>
 

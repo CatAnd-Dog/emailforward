@@ -27,3 +27,4 @@ docker compose pull && docker compose up -d
 修改env里面的密钥部分
 
 强烈建议添加cf的5s盾
+

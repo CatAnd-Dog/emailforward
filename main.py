@@ -73,6 +73,9 @@ def post_email(data, domin, api: str):
     """
     Send a POST request to an external URL with email data.
     """
+    todata = data.get("to", "")
+    data["to"] = [email.strip() for email in todata.split(",")]
+
     url = f"https://api.mailgun.net/v3/{domin}/messages"
     return requests.post(
         url,
