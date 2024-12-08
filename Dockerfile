@@ -27,6 +27,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # 暴露端口
 EXPOSE 8000
 
-# 启动命令，使用 gunicorn 运行 FastAPI 应用，配置 4 个工作线程
-CMD ["gunicorn", "main:app", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--workers", "1", "--threads", "4"]
+# 将启动脚本复制到容器中并设置执行权限
+RUN chmod +x /app/start.sh
 
+# 启动命令，使用新的启动脚本
+CMD ["/app/start.sh"]
