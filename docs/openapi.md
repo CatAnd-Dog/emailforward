@@ -1,5 +1,8 @@
 # openapi的使用说明
 
+### 请求地址
+yourdoami/openapi/record/emails
+http://127.0.0.1:8000/openapi/record/emails
 ### 通过请求头传递key
 两种传递方式，均可  
 X-API-Key :   key   
