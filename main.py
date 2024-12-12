@@ -17,6 +17,7 @@ from fastapi.templating import Jinja2Templates
 from datetime import datetime, timedelta, timezone
 import httpx
 from sqlalchemy import and_
+from sqlalchemy import desc
 import json
 from models import User, Record, Role, EmailSubmission
 from database import get_db
@@ -659,7 +660,12 @@ def get_all_users_form(
         # 计算总记录数和总页数
         total_records = db.query(Record).count()
         record_total_pages = ceil(total_records / 10)
-        records = records_query.offset((record_page - 1) * 10).limit(10).all()
+        records = (
+            records_query.order_by(desc(Record.id))
+            .offset((record_page - 1) * 10)
+            .limit(10)
+            .all()
+        )
 
     if action == "sendemail":
         send_query = db.query(EmailSubmission)
@@ -668,9 +674,12 @@ def get_all_users_form(
         # 计算总记录数和总页数
         total_records = db.query(EmailSubmission).count()
         send_total_pages = ceil(total_records / 10)
-        sends = send_query.offset((send_page - 1) * 10).limit(10).all()
-
-        pass
+        sends = (
+            send_query.order_by(desc(EmailSubmission.id))
+            .offset((send_page - 1) * 10)
+            .limit(10)
+            .all()
+        )
 
     return templates.TemplateResponse(
         "all_users.html",
@@ -926,6 +935,6 @@ async def receive_mailgun_forward(
     }
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
