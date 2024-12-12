@@ -70,7 +70,10 @@ b@ami.458741.xyz
 ## 更新日志
 2024-12-8  
 新增登录页公告，新增首页公共，新增版权信息，支持群发  
-[修改方式](https://oneperfect.cn/1365/)
-
+[修改方式](https://oneperfect.cn/1365/)   
+2024-12-12  
+添加openapi 可以直接通过api查询邮件   
+[使用方法](/docs/openapi.md)   
+修复域名空格的bug
 
 ### 码字不易，点点start吧
