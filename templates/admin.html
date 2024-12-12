@@ -123,7 +123,7 @@
             <input type="text" id="role" name="role" required>
 
             <label for="key">密钥:【必须】</label>
-            <input type="text" id="key" name="key" required>
+            <input type="text" id="key" name="key" required pattern=".{10,}" title="密钥长度必须至少为10个字符">
 
             <button type="submit">创建用户</button>
         </form>
@@ -156,6 +156,21 @@
         </div>
         {% include 'else/footer.html' %}
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var keyInput = document.getElementById("key");
+            keyInput.addEventListener("input", function () {
+                if (this.value.length < 10) {
+                    this.setCustomValidity("密钥长度必须至少为10个字符");
+                } else {
+                    this.setCustomValidity("");
+                }
+            });
+        });
+    </script>
 </body>
+
+
 
 </html>

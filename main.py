@@ -10,6 +10,7 @@ from fastapi import (
     Query,
     Response,
 )
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, APIKeyHeader
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.staticfiles import StaticFiles
@@ -505,7 +506,7 @@ async def create_role(
         return RedirectResponse(url="/")
 
     # 创建新角色
-    new_role = Role(role=role, email=email, key=key)
+    new_role = Role(role=role, email=email.strip(), key=key)
     db.add(new_role)
     try:
         db.commit()
@@ -597,10 +598,10 @@ async def update_role(
     if not role:
         return RedirectResponse(url="/404", status_code=status.HTTP_303_SEE_OTHER)
     role.role = role_name
-    role.email = email
+    role.email = email.strip()
     if key:
         role.key = key
-    print(role.role, role.email, role.id)
+
     db.commit()
     db.refresh(role)
     return RedirectResponse(url="/all", status_code=status.HTTP_303_SEE_OTHER)
@@ -933,6 +934,85 @@ async def receive_mailgun_forward(
     return {
         "message": "Mailgun webhook received",
     }
+
+
+from cachetools import TTLCache
+
+# 全局缓存对象：最大容量为100，过期时间为300秒（5分钟）
+global_cache = TTLCache(maxsize=100, ttl=300)
+
+
+async def set_variable(key: str, value: any) -> None:
+    """
+    设置一个全局变量，自动过期。
+    :param key: 变量名
+    :param value: 变量值
+    """
+    global_cache[key] = value
+
+
+async def get_variable(key: str) -> Optional[any]:
+    """
+    获取全局变量值，如果不存在或已过期返回 None。
+    """
+    return global_cache.get(key)
+
+
+# 提取key token
+security_bearer = HTTPBearer(auto_error=False)  # 用于 Bearer token 验证
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)  # 用于 X-API-Key 验证
+
+
+async def get_api_key(
+    authorization: Optional[HTTPAuthorizationCredentials] = Depends(security_bearer),
+    api_key: Optional[str] = Depends(api_key_header),
+) -> str:
+    if authorization and authorization.scheme == "Bearer":
+        return authorization.credentials
+    if api_key:
+        return api_key
+    raise HTTPException(status_code=403, detail="Could not validate API key")
+
+
+# openapi接口
+@app.post("/openapi/record/emails")
+async def get_emails(
+    request: Request,
+    api_key=Depends(get_api_key),
+    db: Session = Depends(get_db),
+):
+    body = await request.json()
+    username = body.get("username", "").strip()
+    email_user = body.get("email_user", "").strip()
+    email_domain = body.get("email_domain", "").strip()
+    num = int(body.get("num", 1))
+    if not username or not email_domain or not api_key:
+        return {"message": "username and email_domain must not none"}  # 返回错误信息
+
+    # 查询用户key对应的权限
+    emails_options = await get_variable(f"{username}:{api_key}")
+
+    if not emails_options:  # 如果缓存中没有数据
+        user = (
+            db.query(User)
+            .filter(and_(User.username == username, User.key == api_key))
+            .first()
+        )
+        if not user:
+            return {"message": "API key is invalid"}
+        emails = db.query(Role).filter(Role.role == user.role).all()
+        emails_options = [email.email.replace("@", "") for email in emails if emails]
+        # 设置缓存
+        await set_variable(f"{username}:{api_key}", emails_options)
+    if not emails_options or email_domain not in emails_options:
+        return {"message": "email_domain is invalid or not allowed"}
+    # 查询用户的邮件记录
+    records_query = db.query(Record).filter(Record.email_domain == email_domain)
+    if email_user and email_user.strip():
+        records_query = records_query.filter(Record.email_user == email_user.strip())
+    records = records_query.order_by(desc(Record.id)).limit(num).all()
+
+    return {"records": records}
 
 
 if __name__ == "__main__":
