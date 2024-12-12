@@ -13,7 +13,7 @@ post 数据
 ```
 {
     "username": "user",
-    "email_user": "ssssss", 可选
+    "email_user": "ssssss", 
     "email_domain": "ami.458741.xyz",
     "num": 10   可选
 }
@@ -24,3 +24,5 @@ username 为用户名
 email_user  为收件邮箱前缀   
 email_domain 为收件邮箱域名，不要 @   
 num  提取邮件数量
+
+

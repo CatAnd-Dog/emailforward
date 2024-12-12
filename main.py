@@ -986,7 +986,7 @@ async def get_emails(
     email_user = body.get("email_user", "").strip()
     email_domain = body.get("email_domain", "").strip()
     num = int(body.get("num", 1))
-    if not username or not email_domain or not api_key:
+    if not username or not email_user or not email_domain or not api_key:
         return {"message": "username and email_domain must not none"}  # 返回错误信息
 
     # 查询用户key对应的权限
