@@ -7,4 +7,3 @@ jinja2
 python-multipart
 httpx
 cachetools
-re
