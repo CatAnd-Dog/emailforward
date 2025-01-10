@@ -1081,6 +1081,6 @@ async def get_code(
     return {"message": "没有提取到验证码，请手动去邮箱查看"}
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
