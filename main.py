@@ -1077,7 +1077,7 @@ async def get_code(
     s = f"<p>{record.text_plain}</p>\n{record.text_html}"
     match = pattern.search(s)
     if match:
-        return match.group(1)
+        return {"message": match.group(1)}
     return {"message": "没有提取到验证码，请手动去邮箱查看"}
 
 
