@@ -36,6 +36,7 @@ from datetime import datetime, timedelta
 from math import ceil
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+import re
 
 
 # 配置日志
@@ -44,6 +45,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler()],  # 日志输出到控制台
 )
+
+code_email = config.code_email
 
 
 # 关闭所有doc的接口
@@ -974,7 +977,19 @@ async def get_api_key(
     raise HTTPException(status_code=403, detail="Could not validate API key")
 
 
+async def get_optional_key(
+    authorization: Optional[HTTPAuthorizationCredentials] = Depends(security_bearer),
+    api_key: Optional[str] = Depends(api_key_header),
+) -> Optional[str]:
+    if authorization and authorization.scheme == "Bearer":
+        return authorization.credentials
+    if api_key:
+        return api_key
+    return None
+
+
 # openapi接口
+# 查询邮件记录
 @app.post("/openapi/record/emails")
 async def get_emails(
     request: Request,
@@ -1015,6 +1030,57 @@ async def get_emails(
     return {"records": records}
 
 
-if __name__ == "__main__":
+# 提取验证码1
+@app.get("/openapi/record/code/{username}")
+async def get_code(
+    username: str,
+    key: Optional[str] = None,
+    api_key=Depends(get_optional_key),
+    db: Session = Depends(get_db),
+):
+    if not api_key and not key:
+        return {"message": "API key is required"}
+    if not username or not code_email:
+        return {"message": "username must not be none"}
+    if not api_key:
+        api_key = key
 
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
+    # 查询用户key是否存在--暂时不鉴权
+    emails_options = await get_variable(f"{username}:{api_key}")
+
+    if not emails_options:  # 如果缓存中没有数据
+        user = db.query(User).filter(User.key == api_key).first()
+        if not user:
+            return {"message": "API key is invalid"}
+        # 设置缓存
+        await set_variable(f"{username}:{api_key}", "email")
+
+    # 查询用户的邮件记录，提取距离创建24h以内的最新一条记录
+    one_day_ago = datetime.now(timezone.utc) - timedelta(days=1)
+    record = (
+        db.query(Record)
+        .filter(
+            and_(
+                Record.email_user == username,
+                Record.email_domain == code_email,
+                Record.created_at >= one_day_ago,
+            )
+        )
+        .order_by(desc(Record.id))
+        .first()
+    )
+    if not record:
+        return {"message": "没有找到验证码邮件"}
+    pattern = re.compile(
+        r"(?i)(?:验证码|驗證碼|captcha|code|verify|check|auth|token|pw|pass|password|verification)\s*[:：]?\s*([A-Za-z0-9]{4,20})"
+    )
+    s = f"<p>{record.text_plain}</p>\n{record.text_html}"
+    match = pattern.search(s)
+    if match:
+        return match.group(1)
+    return {"message": "没有提取到验证码，请手动去邮箱查看"}
+
+
+# if __name__ == "__main__":
+
+#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
