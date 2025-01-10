@@ -74,6 +74,8 @@ b@ami.458741.xyz
 2024-12-12  
 添加openapi 可以直接通过api查询邮件   
 [使用方法](/docs/openapi.md)   
-修复域名空格的bug
-
+修复域名空格的bug   
+2024-12-12  
+添加api提取验证码  
+[使用方法](/docs/openapi.md)    
 ### 码字不易，点点start吧
