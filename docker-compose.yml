@@ -7,5 +7,12 @@ services:
     ports:
       - "38000:8000"
     volumes:
-      - ./.env:/app/.env
       - ./users.db:/app/users.db
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-yoursecretkeyhere}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY:-yourturnstilesitekeyhere}
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY:-yourturnstilesecretkeyhere}
+    env_file:
+      - ./.env
