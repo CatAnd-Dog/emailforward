@@ -1,176 +1,124 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EmailForward-管理员</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+{% block title %}EmailForward - 管理员面板{% endblock %}
 
-        h2,
-        h3 {
-            color: #007BFF;
-        }
-
-        .admin-panel {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 90%;
-            max-width: 600px;
-        }
-
-        form {
-            margin-top: 15px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .success,
-        .error {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .nav-links {
-            margin-top: 20px;
-        }
-
-        .nav-links a {
-            color: #007BFF;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="admin-panel">
-        <h2>管理员面板</h2>
-
-        <h3>创建新用户</h3>
-        {% if user_creation_success %}
-        <p class="success">用户创建成功!</p>
-        {% endif %}
-        {% if user_creation_error %}
-        <p class="error">{{ user_creation_error }}</p>
-        {% endif %}
-        <form method="post" action="/admin/create_user">
-            <label for="username">用户名:【必须】</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">密码:【必须】</label>
-            <input type="password" id="password" name="password" required>
-
-            <label for="role">角色:【必须】</label>
-            <input type="text" id="role" name="role" required>
-
-            <label for="key">密钥:【必须】</label>
-            <input type="text" id="key" name="key" required pattern=".{10,}" title="密钥长度必须至少为10个字符">
-
-            <button type="submit">创建用户</button>
-        </form>
-
-        <h3>创建新角色</h3>
-        {% if role_creation_success %}
-        <p class="success">角色创建成功!</p>
-        {% endif %}
-        {% if role_creation_error %}
-        <p class="error">{{ role_creation_error }}</p>
-        {% endif %}
-        <form method="post" action="/admin/create_role">
-            <label for="role">角色名称:【必须】</label>
-            <input type="text" id="role" name="role" required>
-
-            <label for="email">邮箱:【必须】</label>
-            <input type="text" id="email" name="email" required>
-
-            <label for="key">密钥:【必须】</label>
-            <input type="text" id="key" name="key" required>
-
-            <button type="submit">创建角色</button>
-        </form>
-
-        <div class="nav-links">
-            <a href="/">主页</a> | <a href="/logout">登出</a>
+{% block content %}
+<div class="fade-in">
+    <h2 class="card-title">
+        <i class="bi bi-gear-fill"></i> 管理员面板
+    </h2>
+    
+    <div class="d-flex flex-wrap">
+        <!-- 创建用户面板 -->
+        <div class="card mb-3 mr-3" style="flex: 1; min-width: 300px;">
+            <h3 class="card-subtitle">
+                <i class="bi bi-person-plus"></i> 创建新用户
+            </h3>
+            
+            {% if user_creation_success %}
+            <div class="alert alert-success mb-3">
+                <i class="bi bi-check-circle-fill"></i> 用户创建成功!
+            </div>
+            {% endif %}
+            
+            {% if user_creation_error %}
+            <div class="alert alert-danger mb-3">
+                <i class="bi bi-exclamation-circle-fill"></i> {{ user_creation_error }}
+            </div>
+            {% endif %}
+            
+            <form method="post" action="/admin/create_user">
+                <div class="form-group">
+                    <label for="username" class="form-label">用户名:【必须】</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">密码:【必须】</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role" class="form-label">角色:【必须】</label>
+                    <input type="text" id="role" name="role" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="key" class="form-label">API密钥:【必须】</label>
+                    <input type="text" id="key" name="key" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i> 创建用户
+                </button>
+            </form>
         </div>
-        <div class="content">
-            {% block content %}{% endblock %}
+        
+        <!-- 创建角色面板 -->
+        <div class="card mb-3" style="flex: 1; min-width: 300px;">
+            <h3 class="card-subtitle">
+                <i class="bi bi-key"></i> 创建新角色
+            </h3>
+            
+            {% if role_creation_success %}
+            <div class="alert alert-success mb-3">
+                <i class="bi bi-check-circle-fill"></i> 角色创建成功!
+            </div>
+            {% endif %}
+            
+            {% if role_creation_error %}
+            <div class="alert alert-danger mb-3">
+                <i class="bi bi-exclamation-circle-fill"></i> {{ role_creation_error }}
+            </div>
+            {% endif %}
+            
+            <form method="post" action="/admin/create_role">
+                <div class="form-group">
+                    <label for="role_name" class="form-label">角色名称:【必须】</label>
+                    <input type="text" id="role_name" name="role" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">邮箱域名:【必须】(@example.com)</label>
+                    <input type="text" id="email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role_key" class="form-label">密钥:【必须】(Mailgun API Key)</label>
+                    <input type="text" id="role_key" name="key" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle-fill"></i> 创建角色
+                </button>
+            </form>
         </div>
-        {% include 'else/footer.html' %}
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var keyInput = document.getElementById("key");
-            keyInput.addEventListener("input", function () {
-                if (this.value.length < 10) {
-                    this.setCustomValidity("密钥长度必须至少为10个字符");
-                } else {
-                    this.setCustomValidity("");
-                }
-            });
-        });
-    </script>
-</body>
-
-
-
-</html>
+    <div class="card mt-3">
+        <h3 class="card-subtitle">
+            <i class="bi bi-list-check"></i> 数据管理
+        </h3>
+        <div class="d-flex justify-content-around flex-wrap mt-3">
+            <a href="/all?action=users" class="btn btn-secondary">
+                <i class="bi bi-people"></i> 查看所有用户
+            </a>
+            <a href="/all?action=roles" class="btn btn-secondary">
+                <i class="bi bi-shield-lock"></i> 查看所有角色
+            </a>
+            <a href="/all?action=records" class="btn btn-secondary">
+                <i class="bi bi-envelope"></i> 查看邮件记录
+            </a>
+            <a href="/all?action=sendemail" class="btn btn-secondary">
+                <i class="bi bi-send"></i> 查看发送记录
+            </a>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="/" class="btn btn-primary">
+            <i class="bi bi-house-fill"></i> 返回首页
+        </a>
+    </div>
+</div>
+{% endblock %}

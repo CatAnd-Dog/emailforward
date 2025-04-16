@@ -1,23 +1,74 @@
 <!-- templates/display_record.html -->
 
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>EmailForward-详情</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
+{% block title %}EmailForward - 邮件内容{% endblock %}
 
-<body>
-    <div class="container">
-        <h1>Record Details</h1>
-        <div class="content">
+{% block content %}
+<div class="card fade-in">
+    <div class="card-title d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-envelope-open"></i> 邮件内容</h2>
+        <button class="btn btn-secondary" onclick="window.close()">
+            <i class="bi bi-x-lg"></i> 关闭
+        </button>
+    </div>
+    
+    {% if subject %}
+    <div class="alert alert-info mb-3">
+        <strong><i class="bi bi-chat-square-text"></i> 主题：</strong> {{ subject }}
+    </div>
+    {% endif %}
+    
+    <div class="card email-content p-3">
+        <div class="email-body">
             {{ content | safe }}
         </div>
-        <hr>
-        <a href="/">Back to User Lookup</a>
     </div>
-</body>
+    
+    <div class="mt-3 text-center">
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> 打印
+        </button>
+        <button class="btn btn-secondary" onclick="window.close()">
+            <i class="bi bi-x-lg"></i> 关闭
+        </button>
+    </div>
+</div>
+{% endblock %}
 
-</html>
+{% block extra_css %}
+<style>
+    .email-content {
+        background-color: white;
+        border: 1px solid var(--divider-color);
+        border-radius: var(--border-radius-md);
+        overflow: auto;
+        max-height: 70vh;
+    }
+    
+    .email-body {
+        line-height: 1.6;
+    }
+    
+    .email-body img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    @media print {
+        .navbar, .footer, .btn {
+            display: none !important;
+        }
+        
+        .card {
+            box-shadow: none !important;
+            border: none !important;
+        }
+        
+        .email-content {
+            border: none !important;
+            max-height: none !important;
+        }
+    }
+</style>
+{% endblock %}

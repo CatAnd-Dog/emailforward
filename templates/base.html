@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EmailForward - 域名邮箱系统{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">EmailForward</a>
+            
+            <div class="navbar-toggle" id="navbarToggle">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            
+            {% if user %}
+            <div class="navbar-links" id="navbarLinks">
+                <a href="/" class="{{ 'active' if request.url.path == '/' else '' }}">首页</a>
+                <a href="/send-email" class="{{ 'active' if request.url.path == '/send-email' else '' }}">发送邮件</a>
+                {% if user.role == "admin" %}
+                <a href="/all?action=users" class="{{ 'active' if request.url.path == '/admin' or request.url.path == '/all' else '' }}">管理员</a>
+                {% endif %}
+                <a href="#" id="changePasswordBtn">修改密码</a>
+                <a href="/logout" id="logoutLink">退出登录</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container fade-in">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            {% include 'else/footer.html' %}
+        </div>
+    </footer>
+    
+    <!-- 修改密码弹窗 -->
+    {% if user %}
+    <div class="modal" id="changePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">修改密码</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <form id="changePasswordForm" method="post" action="/change-password">
+                <div class="form-group">
+                    <label for="current_password" class="form-label">当前密码:</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new_password" class="form-label">新密码:</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">确认新密码:</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelChangePassword">取消</button>
+                    <button type="submit" class="btn btn-primary">确认修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        // 导航栏响应式切换
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggle = document.getElementById('navbarToggle');
+            const navbarLinks = document.getElementById('navbarLinks');
+            
+            if (navbarToggle && navbarLinks) {
+                navbarToggle.addEventListener('click', function() {
+                    navbarLinks.classList.toggle('show');
+                });
+            }
+            
+            // 修改密码弹窗
+            const changePasswordBtn = document.getElementById('changePasswordBtn');
+            const changePasswordModal = document.getElementById('changePasswordModal');
+            const closeModal = document.querySelector('.modal-close');
+            const cancelBtn = document.getElementById('cancelChangePassword');
+            
+            if (changePasswordBtn && changePasswordModal) {
+                // 打开弹窗
+                changePasswordBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    changePasswordModal.classList.add('show');
+                });
+                
+                // 关闭弹窗
+                if (closeModal) {
+                    closeModal.addEventListener('click', function() {
+                        changePasswordModal.classList.remove('show');
+                    });
+                }
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        changePasswordModal.classList.remove('show');
+                    });
+                }
+            }
+            
+            // 密码确认验证
+            const changePasswordForm = document.getElementById('changePasswordForm');
+            if (changePasswordForm) {
+                changePasswordForm.addEventListener('submit', function(e) {
+                    const newPassword = document.getElementById('new_password').value;
+                    const confirmPassword = document.getElementById('confirm_password').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        e.preventDefault();
+                        alert('两次输入的新密码不一致，请重新输入！');
+                    }
+                });
+            }
+            
+            // 修复登出逻辑
+            const logoutLink = document.getElementById('logoutLink');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 创建一个隐藏的表单来提交POST请求
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/logout';
+                    document.body.appendChild(form);
+                    form.submit();
+                });
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,220 +1,231 @@
-<!-- templates/index.html -->
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EmailForward</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+{% block title %}EmailForward - 邮件查询{% endblock %}
 
-        .container {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
-        }
+{% block content %}
+<div class="card fade-in">
+    <h2 class="card-title">
+        <i class="bi bi-envelope"></i> 邮件查询
+    </h2>
+    
+    <div class="mb-3">
+        {% include 'else/announcement.html' %}
+    </div>
+    
+    {% if success_message %}
+    <div class="alert alert-success mb-3">
+        <i class="bi bi-check-circle-fill"></i> {{ success_message }}
+    </div>
+    {% endif %}
+    
+    {% if error_message %}
+    <div class="alert alert-danger mb-3">
+        <i class="bi bi-exclamation-circle-fill"></i> {{ error_message }}
+    </div>
+    {% endif %}
+    
+    <!-- 用户信息卡片 - 现代化布局 -->
+    <div class="mb-4">
 
-        h1 {
-            color: #007BFF;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            color: #555;
-            margin-bottom: 15px;
-        }
-
-        .search-form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .search-form p {
-            margin-bottom: 10px;
-        }
-
-        label {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        input[type="text"],
-        select {
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        button[type="submit"] {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin-top: 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        pre {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-
-        .message {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #007BFF;
-            color: white;
-            text-align: center;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        a {
-            color: #007BFF;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        hr {
-            border: 0;
-            height: 1px;
-            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-            margin: 20px 0;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h1>邮件查询</h1>
-        <div class="content">
-            {% include 'else/announcement.html' %}
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <!-- 用户详情区 -->
+                    <div class="col-12 col-md-5 bg-light p-4 border-end">
+                        <h5 class="mb-3 text-primary fw-semibold">
+                            <i class="bi bi-person-vcard me-2"></i>账户详情
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label class="text-secondary small mb-1">用户名</label>
+                            <p class="fw-medium mb-0">{{ user.username }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="text-secondary small mb-1">账户角色</label>
+                            <p class="fw-medium mb-0">{{ user.role }}</p>
+                        </div>
+                        
+                        <div class="mb-0">
+                            <label class="text-secondary small mb-1">账户状态</label>
+                            <p class="mb-0">
+                                <span class="badge bg-success rounded-pill px-3">
+                                    <i class="bi bi-check2-circle me-1"></i>已激活
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- API密钥区 -->
+                    <div class="col-12 col-md-7 p-4">
+                        <h5 class="mb-3 text-primary fw-semibold">
+                            <i class="bi bi-key-fill me-2"></i>API密钥
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label class="text-secondary small mb-1">您的专属API访问密钥</label>
+                            <div class="position-relative">
+                                <div class="bg-light p-3 rounded border">
+                                    <code id="api-key" class="text-break user-select-all">{{ user.key }}</code>
+                                </div>
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-secondary rounded-pill" title="API密钥长度">
+                                        {{ user.key|length }}位
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button onclick="copyApiKey()" class="btn btn-primary">
+                                <i class="bi bi-clipboard me-2"></i>复制密钥
+                            </button>
+                            <form action="/reset_key" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-warning" onclick="return confirm('确定要重置API密钥吗？此操作不可撤销。')">
+                                    <i class="bi bi-arrow-repeat me-2"></i>重置密钥
+                                </button>
+                            </form>
+                            <a href="#" class="btn btn-outline-secondary">
+                                <i class="bi bi-question-circle me-2"></i>如何使用
+                            </a>
+                        </div>
+                        
+                        <div class="mt-3 p-2 bg-warning bg-opacity-10 rounded border border-warning border-opacity-25">
+                            <div class="d-flex">
+                                <i class="bi bi-shield-lock text-warning fs-4 me-2"></i>
+                                <div>
+                                    <p class="small mb-0">
+                                        <strong>安全提示：</strong>请妥善保管您的API密钥，它是您访问EmailForward服务的唯一凭证。不要与他人共享此密钥，也不要在公共场所使用。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <form action="/search" method="post" class="search-form">
-            <h2>用户信息</h2>
-            <p>用户名: {{ user.username }}</p>
-            <p>角色: {{ user.role }}</p>
-
-            <label for="username">输入你的邮箱前缀:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="emails">选择你的域名邮箱:</label>
-            <select id="emails" name="emails" required>
+    </div>
+    
+    <form action="/search" method="post" class="card">
+        <h3 class="card-subtitle">
+            <i class="bi bi-search"></i> 查询邮件
+        </h3>
+        
+        <div class="form-group">
+            <label for="username" class="form-label">邮箱前缀:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="emails" class="form-label">域名邮箱:</label>
+            <select id="emails" name="emails" class="form-control" required>
                 {% for emails in emails_options %}
                 <option value="{{ emails }}">{{ emails }}</option>
                 {% endfor %}
             </select>
-
-            <button type="submit">Search</button>
-        </form>
-
-        <hr>
-        <label for="code">你所拥有的域名邮箱权限:</label>
-        <pre class="language-python"><code>{{code}}</code></pre>
-        <hr>
-
-        {% if message %}
-        <p class="message">{{ message }}</p>
-        {% endif %}
-
-        {% if records %}
-        <h2>Records</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>From</th>
-                    <th>Created At</th>
-                    <th>Query</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in records %}
-                <tr>
-                    <td>{{ record.id }}</td>
-                    <td>{{ email_domin }}</td>
-                    <td>{{ record.from_field }}</td>
-                    <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td>
-                        <a href="/record/{{ record.id }}?email_domin={{ email_domin }}" target="_blank">Query</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
-
-        {% if user.role == "admin" %}
-        <a href="/admin">管理员页面</a>
-        <hr>
-        <a href="/all">Access All User Data (Special Page)</a>
-        <hr>
-        {% endif %}
-        <a href="/">首页</a>
-        <hr>
-        <a href="/send-email">发送邮件</a>
-        <hr>
-        <a href="/logout">登出</a>
-        <div class="content">
-            {% block content %}{% endblock %}
         </div>
-        {% include 'else/footer.html' %}
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i> 查询
+        </button>
+    </form>
+    
+    <div class="card mt-3">
+        <h3 class="card-subtitle">
+            <i class="bi bi-envelope-at"></i> 您的域名邮箱权限
+        </h3>
+        <pre class="p-2 bg-light" style="border-radius: var(--border-radius-sm); overflow: auto;">{{code}}</pre>
     </div>
+    
+    {% if message %}
+    <div class="alert alert-warning mt-3">
+        <i class="bi bi-exclamation-triangle-fill"></i> {{ message }}
+    </div>
+    {% endif %}
+    
+    {% if records %}
+    <div class="card mt-3">
+        <h3 class="card-subtitle">
+            <i class="bi bi-list-ul"></i> 邮件记录
+        </h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>邮箱</th>
+                        <th>发件人</th>
+                        <th>时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.id }}</td>
+                        <td>{{ email_domin }}</td>
+                        <td>{{ record.from_field }}</td>
+                        <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td class="action-cell">
+                            <a href="/record/{{ record.id }}?email_domin={{ email_domin }}" class="btn btn-secondary btn-sm" target="_blank">
+                                <i class="bi bi-eye"></i> 查看
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
 
-</body>
-
-</html>
+{% block extra_js %}
+<script>
+function copyApiKey() {
+    var keyElement = document.getElementById("api-key");
+    var textArea = document.createElement("textarea");
+    textArea.value = keyElement.textContent.trim();
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+    
+    // 显示复制成功提示
+    var btn = event.target.closest('button');
+    var originalHTML = btn.innerHTML;
+    
+    // 保存原始类名
+    var originalClasses = btn.className;
+    
+    // 更新按钮样式和文本
+    btn.className = 'btn btn-success';
+    btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>复制成功';
+    
+    // 创建并显示一个悬浮提示
+    var toast = document.createElement('div');
+    toast.className = 'position-fixed bottom-0 end-0 p-3';
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">复制成功</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                API密钥已复制到剪贴板
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    // 2秒后恢复按钮样式和移除提示
+    setTimeout(function() {
+        btn.className = originalClasses;
+        btn.innerHTML = originalHTML;
+        document.body.removeChild(toast);
+    }, 2000);
+}
+</script>
+{% endblock %}

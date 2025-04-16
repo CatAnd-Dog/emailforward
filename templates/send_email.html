@@ -1,87 +1,111 @@
-<!-- templates/send_email.html -->
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block title %}EmailForward - 发送邮件{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>EmailForward-发信</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <!-- Place the first <script> tag in your HTML's <head> -->
-    <!-- <script src="https://cdn.tiny.cloud/1/83uonzvnip9q2n0nzpqqyfh9hp75zo8f79lq9p8uj0d28cjb/tinymce/7/tinymce.min.js"
-        referrerpolicy="origin"></script> -->
-    <script src="/static/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
-    <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
-    <script>
-        tinymce.init({
-            selector: 'textarea#html_content',
-            plugins: [
-                'code', 'autolink', 'lists', 'charmap', 'searchreplace', 'visualblocks', 'wordcount',
-                'emoticons', 'codesample' // 保留基本编辑功能
-            ],
-            toolbar: 'undo redo | code | bold italic underline strikethrough | bullist numlist | alignleft aligncenter alignright alignjustify | outdent indent | removeformat', // 移除文件和表格相关工具
-            branding: false, // 隐藏 "Powered by Tiny" 按钮
-            promotion: false, // 隐藏右上角的 "Upgrade" 按钮
-            setup: function (editor) {
-                editor.on('change', function () {
-                    editor.save(); // 将编辑器内容同步到 <textarea>
-                });
-            }
-        });
-    </script>
-</head>
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tinymce@6.4.1/skins/ui/oxide/skin.min.css" rel="stylesheet">
+<style>
+    .tinymce-editor {
+        min-height: 300px;
+        margin-bottom: var(--spacing-lg);
+    }
+</style>
+{% endblock %}
 
-<body>
-    <div class="container">
-        <h1>Send Email</h1>
-        <form action="/send-email" method="post" class="email-form">
-            <label for="secret_key">Secret Key:</label>
-            <input type="password" id="secret_key" name="secret_key">
-
-            <label for="username">email-from:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="priority">domin:</label>
-            <select id="priority" name="priority" required>
-                {% for option in priority_options %}
-                <option value="{{ option }}">{{ option }}</option>
+{% block content %}
+<div class="card fade-in">
+    <h2 class="card-title">
+        <i class="bi bi-send"></i> 发送邮件
+    </h2>
+    
+    {% if error %}
+    <div class="alert alert-danger mb-3">
+        <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+    </div>
+    {% endif %}
+    
+    {% if success_message %}
+    <div class="alert alert-success mb-3">
+        <i class="bi bi-check-circle-fill"></i> {{ success_message }}
+    </div>
+    {% endif %}
+    
+    <form action="/send-email" method="post" class="mb-3">
+        <div class="form-group">
+            <label for="username" class="form-label">发件人前缀:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+            <small class="text-secondary">此名称将作为发件人邮箱的用户名部分</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="priority" class="form-label">选择域名:</label>
+            <select id="priority" name="priority" class="form-control" required>
+                {% for domain in priority_options %}
+                <option value="{{ domain }}">{{ domain }}</option>
                 {% endfor %}
             </select>
-
-            <label for="to_field">To:</label>
-            <input type="email" id="to_field" name="to_field" required multiple>
-
-            <label for="subject">Subject:</label>
-            <input type="text" id="subject" name="subject" required>
-
-            <label for="html_content">HTML Content:</label>
-            <textarea id="html_content" name="html_content" required></textarea>
-
-            <button type="submit">Submit</button>
-        </form>
-
-        {% if error %}
-        <p class="error">{{ error }}</p>
-        {% endif %}
-
-        {% if success_message %}
-        <p class="success">{{ success_message }}</p>
-        {% if external_response %}
-        <h2>Response from External Server:</h2>
-        <div class="external-response">
-            {{ external_response | safe }}
         </div>
-        {% endif %}
-        {% endif %}
-
-        <hr>
-        <a href="/">Back to User Lookup</a>
-        <hr>
-        <div class="content">
-            {% block content %}{% endblock %}
+        
+        <div class="form-group">
+            <label for="to_field" class="form-label">收件人:</label>
+            <input type="text" id="to_field" name="to_field" class="form-control" required>
+            <small class="text-secondary">多个收件人请用逗号分隔</small>
         </div>
-        {% include 'else/footer.html' %}
+        
+        <div class="form-group">
+            <label for="subject" class="form-label">邮件主题:</label>
+            <input type="text" id="subject" name="subject" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="html_content" class="form-label">邮件内容:</label>
+            <textarea id="html_content" name="html_content" class="tinymce-editor"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="secret_key" class="form-label">API密钥 (可选):</label>
+            <input type="text" id="secret_key" name="secret_key" value="{{ secret_key }}" class="form-control">
+            <small class="text-secondary">如不填写，将使用系统配置的默认API密钥</small>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send-fill"></i> 发送邮件
+        </button>
+    </form>
+    
+    {% if external_response %}
+    <div class="card mt-4">
+        <h3 class="card-subtitle">
+            <i class="bi bi-arrow-return-left"></i> 服务器响应
+        </h3>
+        <pre class="p-2 bg-light" style="border-radius: var(--border-radius-sm); overflow: auto;">{{ external_response }}</pre>
     </div>
-</body>
+    {% endif %}
+    
+    <div class="mt-3">
+        <a href="/" class="btn btn-secondary">
+            <i class="bi bi-house-fill"></i> 返回首页
+        </a>
+    </div>
+</div>
+{% endblock %}
 
-</html>
+{% block extra_js %}
+<script src="{{ url_for('static', path='/tinymce/tinymce.min.js') }}"></script>
+<script>
+    tinymce.init({
+        selector: '#html_content',
+        height: 400,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | ' +
+            'bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | help',
+        content_css: '//www.tiny.cloud/css/codepen.min.css'
+    });
+</script>
+{% endblock %}

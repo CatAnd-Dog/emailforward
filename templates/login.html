@@ -1,118 +1,105 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EmailForward-登录</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+{% block title %}EmailForward - 登录{% endblock %}
 
-        .login-container {
-            background: white;
-            padding: 2em;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
+{% block extra_css %}
+<style>
+    body {
+        background-color: var(--background-color);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    .navbar {
+        display: none;
+    }
+    
+    .login-container {
+        max-width: 450px;
+        margin: 8vh auto;
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+        background-color: var(--card-color);
+        box-shadow: var(--shadow-2);
+    }
+    
+    .login-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: var(--spacing-lg);
+        text-align: center;
+    }
+    
+    .login-header h1 {
+        margin: 0;
+        font-size: var(--font-size-xl);
+        font-weight: 500;
+    }
+    
+    .login-body {
+        padding: var(--spacing-xl);
+    }
+    
+    .login-note {
+        margin-bottom: var(--spacing-lg);
+        color: var(--text-secondary);
+    }
+    
+    .login-form {
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .cf-turnstile {
+        margin: var(--spacing-md) 0;
+    }
+</style>
+{% if turnstile_site_key %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
+{% endblock %}
 
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            text-align: left;
-            margin-top: 10px;
-            color: #666;
-        }
-
-        input {
-            padding: 10px;
-            margin: 5px 0 15px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            transition: border-color 0.3s ease;
-        }
-
-        input:focus {
-            border-color: #007BFF;
-            outline: none;
-        }
-
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .error-message {
-            color: #dc3545;
-            margin-top: 10px;
-        }
-
-        .cf-turnstile {
-            margin-top: 20px;
-        }
-    </style>
-    {% if turnstile_site_key %}
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    {% endif %}
-</head>
-
-<body>
-    <div class="login-container">
-        <h2>登录</h2>
-        <div class="content">
+{% block content %}
+<div class="login-container fade-in">
+    <div class="login-header">
+        <h1>EmailForward</h1>
+    </div>
+    <div class="login-body">
+        <div class="login-note">
             {% include 'else/loginnote.html' %}
         </div>
-
+        
         {% if error %}
-        <p class="error-message">{{ error }}</p>
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+        </div>
         {% endif %}
-        <form method="post" action="/login">
-            <label for="username">用户名:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">密码:</label>
-            <input type="password" id="password" name="password" required>
-
+        
+        <form method="post" action="/login" class="login-form">
+            <div class="form-group">
+                <label for="username" class="form-label">用户名</label>
+                <input type="text" id="username" name="username" class="form-control" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">密码</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            
             {% if turnstile_site_key %}
             <!-- Turnstile Widget -->
             <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
             {% endif %}
-
-            <button type="submit">登录</button>
+            
+            <button type="submit" class="btn btn-primary btn-block">登录</button>
         </form>
-        <div class="content">
-            {% block content %}{% endblock %}
-        </div>
-        {% include 'else/footer.html' %}
     </div>
+</div>
+{% endblock %}
 
-
-</body>
-
-</html>
+{% block extra_js %}
+<script>
+    // 登录页面不需要显示底部页脚
+    document.querySelector('.footer').style.display = 'none';
+</script>
+{% endblock %}
